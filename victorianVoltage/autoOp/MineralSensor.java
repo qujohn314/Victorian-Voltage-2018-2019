@@ -1,9 +1,8 @@
 
 package org.firstinspires.ftc.teamcode.opModes.victorianVoltage.autoOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import java.util.List;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -125,7 +124,7 @@ public class MineralSensor {
                 }
             }
 
-        }else if(op instanceof CraterAuto){
+        }else if(op instanceof CraterSideAuto){
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -197,7 +196,7 @@ public class MineralSensor {
                 "tfodMonitorViewId", "id", op.hardwareMap.appContext.getPackageName());
 
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = op instanceof CraterAuto ? 0.7 : 0.6;
+        tfodParameters.minimumConfidence = op instanceof CraterSideAuto ? 0.7 : 0.6;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }

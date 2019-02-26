@@ -32,6 +32,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * @Edited by johnson_891609 on 2/01/2019
  */
 
+
 @TeleOp(name="VictorianOp",group="TeleOp")
 public class VictorianOp extends OpMode {
     // Declare OpMode members.
@@ -102,8 +103,8 @@ public class VictorianOp extends OpMode {
         marker.setPosition(0);
 
         trapDoor = hardwareMap.servo.get("trapDoor");
-        trapDoor.setDirection(Servo.Direction.REVERSE);
-        trapDoor.setPosition(0);
+        trapDoor.setDirection(Servo.Direction.FORWARD);
+        trapDoor.setPosition(1);
 
 //        bucketServo = hardwareMap.servo.get("bucketServo");
 //        bucketServo.setDirection(Servo.Direction.REVERSE);
@@ -147,6 +148,7 @@ public class VictorianOp extends OpMode {
      */
     @Override
     public void start() {
+
         runtime.reset();
     }
 
@@ -217,12 +219,12 @@ public class VictorianOp extends OpMode {
 
 
         if((gamepad2.x&&!trap&&canToggleTrap)) {
-            trapDoor.setPosition(0.45);
+            trapDoor.setPosition(0.75);
             trap = true;
             canToggleTrap=false;
         }
         else if(gamepad2.x&&canToggleTrap) {
-            trapDoor.setPosition(0);
+            trapDoor.setPosition(.45);
             trap = false;
             canToggleTrap=false;
         }
@@ -272,6 +274,7 @@ public class VictorianOp extends OpMode {
     @Override
     public void stop() {
     }
+
 
 }
 
