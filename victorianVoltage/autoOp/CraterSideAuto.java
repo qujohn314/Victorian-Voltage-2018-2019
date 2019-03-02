@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class CraterSideAuto extends LinearOpMode{
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotorEx leftFrontDrive, leftRearDrive, rightFrontDrive, rightRearDrive,lift,flip,spool;
-    private Servo phoneMount,marker;//,bucketServo,trapDoor;
+    private Servo phoneMount,marker, trapDoor;//,bucketServo,trapDoor;
     private CRServo intakeServo;
     private BNO055IMU gyro;
     private final double GEAR_RATIO = 1, WHEEL_DIAMETER = 4, TICKS_PER_REV_DRIVE = 560,LIFT_RATIO=.3333,LIFT_DIAMETER=0.819;
@@ -74,11 +74,12 @@ public class CraterSideAuto extends LinearOpMode{
 
 
 
+
         spool = (DcMotorEx)hardwareMap.dcMotor.get("spool");
         spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         spool.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spool.setDirection(DcMotor.Direction.FORWARD);
+        spool.setDirection(DcMotor.Direction.REVERSE);
 
         phoneMount = hardwareMap.servo.get("phoneMount");
         phoneMount.setDirection(Servo.Direction.FORWARD);
@@ -92,25 +93,32 @@ public class CraterSideAuto extends LinearOpMode{
         intakeServo.setDirection(CRServo.Direction.FORWARD);
         intakeServo.setPower(0);
 
+        trapDoor = hardwareMap.servo.get("trapDoor");
+        trapDoor.setDirection(Servo.Direction.FORWARD);
+
+
         camera = new MineralSensor(this);
 
+
         waitForStart();
-        phoneMount.setPosition(.5);
+
+        phoneMount.setPosition(.55);
         try {
             disconnect();
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-            parameters.loggingEnabled      = true;
-            parameters.loggingTag          = "IMU";
+            parameters.loggingEnabled = true;
+            parameters.loggingTag = "IMU";
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
             gyro = hardwareMap.get(BNO055IMU.class, "gyro");
             gyro.initialize(parameters);
             angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             flip.setPower(0);
             move(5,1);
-            strafeLeft(3);
+
+
             while(opModeIsActive() && camera.mineral == MineralSensor.Mineral.NONE) {
 
                 mineralSense();
@@ -122,79 +130,71 @@ public class CraterSideAuto extends LinearOpMode{
 
                 case "Center":
                     phoneMount.setPosition(0);
-                    strafeRight(3);
-                    move(18, 0.8);
+                    move(18, 1);
                     //intakeMotor.setPower(0);
 
-                    move(-8,0.8);
+                    move(-10,1);
                     //  move(-45,0.8);
-                    turn(77,"left");
+                    turn(90,"left");
 
 
-                    move(43,0.8);
-                    turn(10,"left");
-                    strafeLeft(35);
+                    move(40,1);
+                    turn(131,"left");
+                    strafeLeft(25);
                     move(44,1);
                     deposit();
-                    move(-45,0.75);
-                    strafeRight(4);
-                    turn(150,"left");
-                    marker.setPosition(0.4);
-                    strafeRight(20);
+                    move(-45,1);
+                    turn(-32,"left");
+                    marker.setPosition(0.7);
 
-                    move(27,1);
+                    move(15,1);
                     crater();
 
 
                     break;
                 case "Left":
                     phoneMount.setPosition(0);
-                    move(7, 1);
+                    turn(38,"left");
                     //intakeMotor.setPower(0);
-                    strafeRight(19);
-                    move(12,0.8);
-                    move(-9,0.8);
+                    move(22,1);
+
                     //  move(-45,0.8);
-                    turn(76,"left");
+                    move(-10,1);
+                    turn(90,"left");
 
 
                     move(30,1);
-                    turn(10,"left");
-                    strafeLeft(35);
+                    turn(131,"left");
+                    strafeLeft(25);
                     move(44,1);
                     deposit();
                     move(-47,1);
-                    strafeLeft(12);
-                    turn(150,"left");
-                    marker.setPosition(0.4);
-                    strafeRight(20);
+                    turn(-32,"left");
+                    marker.setPosition(0.7);
 
-                    move(25,1);
+                    move(15,1);
 
                     crater();
 
                     break;
                 case "Right":
                     phoneMount.setPosition(0);
-                    move(11, 1);
+                    turn(-38,"left");
                     //intakeMotor.setPower(0);
-                    strafeLeft(12);
-                    move(11,1);
-                    move(-9,1);
+                    move(22,1);
+                    move(-10,1);
                     //  move(-45,0.8);
-                    turn(79,"left");
+                    turn(90,"left");
 
 
-                    move(54,1);
-                    turn(15,"left");
-                    strafeLeft(40);
-                    move(43,1);
+                    move(50,1);
+                    turn(131,"left");
+                    strafeLeft(25);
+                    move(44,1);
                     deposit();
                     move(-45,1);
-                    strafeRight(4);
-                    turn(150,"left");
+                    turn(-32,"left");
                     marker.setPosition(0.7);
-                    strafeRight(20);
 
                     move(25,1);
                     crater();
@@ -207,7 +207,7 @@ public class CraterSideAuto extends LinearOpMode{
 
     }
     public void disconnect()throws InterruptedException{
-        int ticks = (int)(6.2*LC);
+        int ticks = (int)(5.6*LC);
         telemetry.addData("Total Ticks: ", ticks);
         telemetry.update();
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -224,17 +224,11 @@ public class CraterSideAuto extends LinearOpMode{
         lift.setPower(0);
 
     }
-    public void turn(int degree,String dir)throws InterruptedException{
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-        gyro = hardwareMap.get(BNO055IMU.class, "gyro");
-        gyro.initialize(parameters);
-        angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+    public void turn(int degree,String dir)throws InterruptedException {
+        if(degree > 180)
+            dir = dir.equals("right") ? "left" : "right";
+
+
         leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftRearDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -243,43 +237,128 @@ public class CraterSideAuto extends LinearOpMode{
         leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        int deg = 0;
-        if (dir.equals("right"))
-            deg = degree;
-        else if (dir.equals("left"))
-            deg = degree;
+
+        double deg = degree;
+        //Time control for velocity calculations
+        double currentT = runtime.time();
+        double deltaT = 0;
+
+
+        double oldDeg = Math.abs(angles.firstAngle);
+        double deltaDeg = 0;
+
+
         telemetry.addData("desired angle", deg);
         telemetry.update();
-        if (dir.equals("left")) {
-            while ((int)Math.abs(angles.firstAngle)  < deg && opModeIsActive()) {
-                leftFrontDrive.setPower(-.5);
-                leftRearDrive.setPower(-.5);
-                rightFrontDrive.setPower(.5);
-                rightRearDrive.setPower(.5);
 
-                angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                telemetry.addData("angle", angles.firstAngle);
-                telemetry.addData("angle", angles.secondAngle);
-                telemetry.addData("angle", angles.thirdAngle);
-                telemetry.update();
-                heartbeat();
+
+        double LFDmotorPower = 0;
+        double LRDmotorPower = 0;
+        double RFDmotorPower = 0;
+        double RRDmotorPower = 0;
+
+
+        double LFDCorrection = 10;
+        double LRDCorrection = 10;
+        double RFDCorrection = 10;
+        double RRDCorrection = 10;
+
+        double tAV = 0;
+
+        boolean over = false;
+        int direction = dir.equals("left") ? 1 : -1;
+
+        boolean firstTrial = true;
+        double firstCorrection = 0;
+
+        double angleError = deg > 100 ? 6 : 2.5;
+
+        Pid turnControlLFD = new Pid(0.38, 0, 0.06);
+        Pid turnControlLRD = new Pid(0.38, 0, 0.06);
+        Pid turnControlRFD = new Pid(0.38, 0, 0.06);
+        Pid turnControlRRD = new Pid(0.38, 0, 0.06);
+        runtime.reset();
+
+        double angleDistance = angles.firstAngle >= 0 && deg < 0 ? Math.abs((angles.firstAngle - deg - 360)) : Math.abs((angles.firstAngle - deg ));;
+
+        while (angleDistance  > angleError  && opModeIsActive()) {
+
+            deltaT = runtime.time() - currentT;
+            currentT = runtime.time();
+
+            angleDistance = angles.firstAngle >= 0 && deg < 0 ? Math.abs((angles.firstAngle - deg - 360)) : Math.abs((angles.firstAngle - deg ));
+
+
+            if (angleDistance > 60)
+                tAV = 700;
+            else if (angleDistance > 20)
+                tAV = 300;
+            else {
+                tAV = 50 * ((angleDistance) / 15);
             }
-        }
-        else if (dir.equals("right")) {
-            while (deg != 0 && (int)Math.abs(angles.firstAngle)  < deg && opModeIsActive()) {
 
-                leftFrontDrive.setPower(.5);
-                leftRearDrive.setPower(.5);
-                rightFrontDrive.setPower(-.5);
-                rightRearDrive.setPower(-.5);
+            LFDCorrection = turnControlLFD.controlOutput((over ? tAV : -tAV) * direction, leftFrontDrive.getVelocity(AngleUnit.DEGREES), deltaT);
+            LRDCorrection = turnControlLRD.controlOutput((over ? tAV : -tAV) * direction, leftRearDrive.getVelocity(AngleUnit.DEGREES), deltaT);
+            RFDCorrection = turnControlRFD.controlOutput((over ? -tAV : tAV) * direction, rightFrontDrive.getVelocity(AngleUnit.DEGREES), deltaT);
+            RRDCorrection = turnControlRRD.controlOutput((over ? -tAV : tAV) * direction, rightRearDrive.getVelocity(AngleUnit.DEGREES), deltaT);
 
-                angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-                telemetry.addData("angle", angles.firstAngle);
-                telemetry.addData("angle", angles.secondAngle);
-                telemetry.addData("angle", angles.thirdAngle);
-                telemetry.update();
-                heartbeat();
-            }
+            LFDmotorPower += LFDCorrection;
+            LRDmotorPower += LRDCorrection;
+            RFDmotorPower += RFDCorrection;
+            RRDmotorPower += RRDCorrection;
+
+
+            if (angles.firstAngle < deg)
+                over = false;
+            else
+                over = true;
+
+
+
+
+
+            leftFrontDrive.setVelocity((LFDmotorPower), AngleUnit.DEGREES);
+            leftRearDrive.setVelocity(LRDmotorPower, AngleUnit.DEGREES);
+
+            rightFrontDrive.setVelocity(RFDmotorPower, AngleUnit.DEGREES);
+            rightRearDrive.setVelocity(RRDmotorPower, AngleUnit.DEGREES);
+
+            angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+            telemetry.addData("angle", angles.firstAngle);
+            telemetry.addData("Target Angle", deg);
+                    /*
+                    telemetry.addData("LFD Velocity", LFDVelocity);
+                    telemetry.addData("LRD Velocity", LRDVelocity);
+                    telemetry.addData("RFDMotor Velocity", RFDVelocity);
+                    telemetry.addData("RRDMotor Velocity", RRDVelocity);
+                    telemetry.addData("Target Angle Velocity", targetAngleVelocity);
+                    telemetry.addData("Target Velocity", targetVelocity);
+                    telemetry.addData("LFDPower", LFDmotorPower);
+
+    */
+
+            telemetry.addData("LFDCorrection: ", LFDCorrection);
+            telemetry.addData("LRDCorrection: ", LRDCorrection);
+            telemetry.addData("RFDCorrection: ", RFDCorrection);
+            telemetry.addData("RRDCorrection: ", RRDCorrection);
+
+            telemetry.addData("First Correction: ", firstCorrection);
+
+            double percentError = (Math.abs(deg - Math.abs(angles.firstAngle)) / deg) * 100;
+            telemetry.addData("LFD VELOCITY: ", leftFrontDrive.getVelocity(AngleUnit.DEGREES));
+            telemetry.addData("LRD VELOCITY: ", leftRearDrive.getVelocity(AngleUnit.DEGREES));
+            telemetry.addData("RFD VELOCITY: ", rightFrontDrive.getVelocity(AngleUnit.DEGREES));
+            telemetry.addData("RRD VELOCITY: ", rightRearDrive.getVelocity(AngleUnit.DEGREES));
+
+
+            telemetry.addData("Percent Error: ", percentError + "%");
+            telemetry.update();
+
+
+            firstTrial = false;
+            heartbeat();
+
         }
         leftFrontDrive.setPower(0);
         leftRearDrive.setPower(0);
@@ -355,6 +434,7 @@ public class CraterSideAuto extends LinearOpMode{
 
         rightRearDrive.setTargetPosition(ticks);
         rightRearDrive.setPower(.4);
+
         while (opModeIsActive() && leftFrontDrive.isBusy() && leftRearDrive.isBusy() && rightFrontDrive.isBusy() && rightRearDrive.isBusy()) {
             heartbeat();
         }
@@ -384,14 +464,38 @@ public class CraterSideAuto extends LinearOpMode{
     }
 
     private void crater()throws InterruptedException{
+       spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         runtime.reset();
         double tim = runtime.time();
         marker.setPosition(0.8);
-        while(tim + 1 > runtime.time() && opModeIsActive()) {
-            flip.setPower(0.3);
+        move(-3,1);
+        spool.setTargetPosition(1000);
+        spool.setPower(1);
+        trapDoor.setPosition(0.73);
+        while(tim + 2 > runtime.time() && opModeIsActive()) {
+            flip.setPower(0.6);
+
+            intakeServo.setPower(1);
+            telemetry.addData("spool power: ",spool.getPower());
+            telemetry.addData("spool position: ",spool.getCurrentPosition());
+            telemetry.update();
             heartbeat();
         }
         flip.setPower(0);
+        runtime.reset();
+        tim = runtime.time();
+        while(tim + 2.5 > runtime.time() && opModeIsActive()) {
+
+            intakeServo.setPower(1);
+            telemetry.addData("spool power: ",spool.getPower());
+            telemetry.addData("spool position: ",spool.getCurrentPosition());
+            telemetry.update();
+
+            heartbeat();
+        }
+
     }
     public void move(double distance, double power) throws InterruptedException {
         int ticks = (int) (distance * DC);
@@ -426,6 +530,7 @@ public class CraterSideAuto extends LinearOpMode{
 
         rightRearDrive.setTargetPosition(ticks);
         rightRearDrive.setPower(power);
+
         while (opModeIsActive() && leftFrontDrive.isBusy() && leftRearDrive.isBusy() && rightFrontDrive.isBusy() && rightRearDrive.isBusy()) {
             heartbeat();
         }
@@ -444,7 +549,7 @@ public class CraterSideAuto extends LinearOpMode{
             camera.update();
             // telemetry.update();
             if(camera.mineral != MineralSensor.Mineral.NONE){
-                while(setting.size()<=250 && opModeIsActive()){
+                while(setting.size()<=150 && opModeIsActive()){
                     heartbeat();
                     if(camera.mineral == MineralSensor.Mineral.CENTER)
                         setting.add(0);

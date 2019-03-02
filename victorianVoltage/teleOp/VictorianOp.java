@@ -21,10 +21,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
@@ -104,7 +107,7 @@ public class VictorianOp extends OpMode {
 
         trapDoor = hardwareMap.servo.get("trapDoor");
         trapDoor.setDirection(Servo.Direction.FORWARD);
-        trapDoor.setPosition(1);
+        trapDoor.setPosition(0.7);
 
 //        bucketServo = hardwareMap.servo.get("bucketServo");
 //        bucketServo.setDirection(Servo.Direction.REVERSE);
@@ -120,6 +123,8 @@ public class VictorianOp extends OpMode {
         trap =false;
         bucket = true;
         flipped= true;
+
+
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -219,12 +224,12 @@ public class VictorianOp extends OpMode {
 
 
         if((gamepad2.x&&!trap&&canToggleTrap)) {
-            trapDoor.setPosition(0.75);
+            trapDoor.setPosition(0.73);
             trap = true;
             canToggleTrap=false;
         }
         else if(gamepad2.x&&canToggleTrap) {
-            trapDoor.setPosition(.45);
+            trapDoor.setPosition(.42);
             trap = false;
             canToggleTrap=false;
         }
@@ -263,9 +268,11 @@ public class VictorianOp extends OpMode {
         angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("Front Motors", "Left Front (%.2f), Right Front (%.2f)", leftFrontPower, rightFrontPower);
         telemetry.addData("Rear Motors", "Left Rear (%.2f), Right Rear (%.2f)", leftRearPower, rightRearPower);
+        telemetry.addData("Arm Position: ", flip.getCurrentPosition());
         telemetry.addData("angle", angles.firstAngle);
         telemetry.addData("angle", angles.secondAngle);
         telemetry.addData("angle", angles.thirdAngle);
+
         telemetry.update();
     }
     /*
