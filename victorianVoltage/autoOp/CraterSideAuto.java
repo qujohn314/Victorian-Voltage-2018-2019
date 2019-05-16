@@ -79,7 +79,7 @@ public class CraterSideAuto extends LinearOpMode{
         spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         spool.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spool.setDirection(DcMotor.Direction.REVERSE);
+        spool.setDirection(DcMotor.Direction.FORWARD);
 
         phoneMount = hardwareMap.servo.get("phoneMount");
         phoneMount.setDirection(Servo.Direction.FORWARD);
@@ -102,38 +102,68 @@ public class CraterSideAuto extends LinearOpMode{
 
         waitForStart();
 
-        phoneMount.setPosition(.55);
         try {
             disconnect();
+            runtime.reset();
+
+            double tim = runtime.time();
+            while(tim +  0.5> runtime.time() && opModeIsActive()) {
+                flip.setPower(0.1);
+                telemetry.addData("spool power: ",spool.getPower());
+                telemetry.addData("spool position: ",spool.getCurrentPosition());
+                telemetry.update();
+                heartbeat();
+            }
+            phoneMount.setPosition(.5);
+
+
+            flip.setPower(0);
+
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
             parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-            parameters.loggingEnabled = true;
-            parameters.loggingTag = "IMU";
+            parameters.loggingEnabled      = true;
+            parameters.loggingTag          = "IMU";
             parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
             gyro = hardwareMap.get(BNO055IMU.class, "gyro");
             gyro.initialize(parameters);
             angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            flip.setPower(0);
-            move(5,1);
+
+
+
+            move(4,0.5);
 
 
             while(opModeIsActive() && camera.mineral == MineralSensor.Mineral.NONE) {
-
                 mineralSense();
                 heartbeat();
 
             }
+            runtime.reset();
+            tim = runtime.time();
+            phoneMount.setPosition(0);
+            while(tim + 1 > runtime.time() && opModeIsActive()) {
+                flip.setPower(-1);
+                telemetry.addData("spool power: ",spool.getPower());
+                telemetry.addData("spool position: ",spool.getCurrentPosition());
+                telemetry.update();
+                heartbeat();
+            }
+            runtime.reset();
+            tim = runtime.time();
 
+            phoneMount.setPosition(0);
+
+            flip.setPower(0);
             switch (camera.mineral.getName()) {
 
                 case "Center":
                     phoneMount.setPosition(0);
-                    move(18, 1);
+                    move(19, 0.6);
                     //intakeMotor.setPower(0);
 
-                    move(-10,1);
+                    move(-9,0.6);
                     //  move(-45,0.8);
                     turn(90,"left");
 
@@ -141,7 +171,7 @@ public class CraterSideAuto extends LinearOpMode{
                     move(40,1);
                     turn(131,"left");
                     strafeLeft(25);
-                    move(44,1);
+                    move(47,1);
                     deposit();
                     move(-45,1);
                     turn(-32,"left");
@@ -154,19 +184,19 @@ public class CraterSideAuto extends LinearOpMode{
                     break;
                 case "Left":
                     phoneMount.setPosition(0);
-                    turn(38,"left");
+                    turn(40,"left");
                     //intakeMotor.setPower(0);
-                    move(22,1);
+                    move(23,1);
 
                     //  move(-45,0.8);
-                    move(-10,1);
+                    move(-9,0.7);
                     turn(90,"left");
 
 
                     move(30,1);
                     turn(131,"left");
                     strafeLeft(25);
-                    move(44,1);
+                    move(47,1);
                     deposit();
                     move(-47,1);
                     turn(-32,"left");
@@ -181,8 +211,8 @@ public class CraterSideAuto extends LinearOpMode{
                     phoneMount.setPosition(0);
                     turn(-38,"left");
                     //intakeMotor.setPower(0);
-                    move(22,1);
-                    move(-10,1);
+                    move(23,1);
+                    move(-9,0.7);
                     //  move(-45,0.8);
                     turn(90,"left");
 
@@ -190,7 +220,7 @@ public class CraterSideAuto extends LinearOpMode{
                     move(50,1);
                     turn(131,"left");
                     strafeLeft(25);
-                    move(44,1);
+                    move(47,1);
                     deposit();
                     move(-45,1);
                     turn(-32,"left");
@@ -464,38 +494,31 @@ public class CraterSideAuto extends LinearOpMode{
     }
 
     private void crater()throws InterruptedException{
-       spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         runtime.reset();
         double tim = runtime.time();
         marker.setPosition(0.8);
         move(-3,1);
-        spool.setTargetPosition(1000);
-        spool.setPower(1);
+
         trapDoor.setPosition(0.73);
         while(tim + 2 > runtime.time() && opModeIsActive()) {
             flip.setPower(0.6);
 
             intakeServo.setPower(1);
-            telemetry.addData("spool power: ",spool.getPower());
-            telemetry.addData("spool position: ",spool.getCurrentPosition());
-            telemetry.update();
+
+
             heartbeat();
         }
         flip.setPower(0);
+        intakeServo.setPower(1);
+        spool.setTargetPosition(1000);
+        spool.setPower(1);
         runtime.reset();
         tim = runtime.time();
-        while(tim + 2.5 > runtime.time() && opModeIsActive()) {
 
-            intakeServo.setPower(1);
-            telemetry.addData("spool power: ",spool.getPower());
-            telemetry.addData("spool position: ",spool.getCurrentPosition());
-            telemetry.update();
-
-            heartbeat();
-        }
-
+        spool.setPower(1);
     }
     public void move(double distance, double power) throws InterruptedException {
         int ticks = (int) (distance * DC);

@@ -94,7 +94,7 @@ public class VictorianOp extends OpMode {
         spool = (DcMotorEx)hardwareMap.dcMotor.get("spool");
         spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        spool.setDirection(DcMotor.Direction.FORWARD);
+        spool.setDirection(DcMotor.Direction.REVERSE);
         spool.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         phoneMount = hardwareMap.servo.get("phoneMount");
@@ -184,7 +184,7 @@ public class VictorianOp extends OpMode {
 
         double y = gamepad2.left_stick_y;
         final double flipPow = Range.clip(y, -1.0, 1.0);
-        flip.setPower(.4*flipPow);
+        flip.setPower(.6*flipPow);
 
         double z = gamepad2.right_stick_y;
         final double spoolpower = Range.clip(z, -1.0, 1.0);

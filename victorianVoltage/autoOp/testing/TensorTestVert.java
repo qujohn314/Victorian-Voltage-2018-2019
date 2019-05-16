@@ -104,21 +104,22 @@ public class TensorTestVert {
                     int silverMineral1X = -1;
 
                     for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getBottom() > 430) {
+                        if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getTop() > 450) {
 
                             goldMineralX = (int) recognition.getLeft();
 
 
-                        } else if (silverMineral1X == -1 && recognition.getBottom() > 430) {
+                        } else if (silverMineral1X == -1 && recognition.getTop() > 450) {
                             silverMineral1X = (int) recognition.getLeft();
                         }
 
                         if(recognition.getLabel().equals(LABEL_GOLD_MINERAL))
-                            op.telemetry.addData("Y-Val-GOLD",""+recognition.getBottom());
+                            op.telemetry.addData("Y-Val-GOLD",""+recognition.getTop());
                         else
-                            op.telemetry.addData("Y-Val-SILVER",""+recognition.getBottom());
+                            op.telemetry.addData("Y-Val-SILVER",""+recognition.getTop());
+                        op.telemetry.update();
                     }
-                    op.telemetry.update();
+                    op.telemetry.update();/*
                     if (silverMineral1X != -1) {
                         if (goldMineralX == -1) {
                             mineral = Mineral.LEFT;
@@ -130,7 +131,7 @@ public class TensorTestVert {
                             mineral = Mineral.CENTER;
 
                         }
-                    }
+                    }*/
                 }
 
             }

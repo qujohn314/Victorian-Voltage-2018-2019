@@ -136,12 +136,12 @@ public class MineralSensor {
                         int silverMineral1X = -1;
 
                         for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getBottom() > 430) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getBottom() > 420) {
 
                                 goldMineralX = (int) recognition.getLeft();
 
 
-                            } else if (silverMineral1X == -1 && recognition.getBottom() > 430) {
+                            } else if (silverMineral1X == -1 && recognition.getBottom() > 420) {
                                 silverMineral1X = (int) recognition.getLeft();
                             }
 
@@ -151,6 +151,7 @@ public class MineralSensor {
                                 op.telemetry.addData("Y-Val-SILVER",""+recognition.getBottom());
                         }
                         op.telemetry.update();
+
                         if (silverMineral1X != -1) {
                             if (goldMineralX == -1) {
                                 mineral = Mineral.LEFT;
@@ -196,7 +197,7 @@ public class MineralSensor {
                 "tfodMonitorViewId", "id", op.hardwareMap.appContext.getPackageName());
 
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = op instanceof CraterSideAuto ? 0.7 : 0.6;
+        tfodParameters.minimumConfidence = op instanceof CraterSideAuto ? 0.5 : 0.4;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }

@@ -73,7 +73,9 @@ public class DepotAuto extends LinearOpMode{
         lift.setDirection(DcMotor.Direction.FORWARD);
 
         flip = (DcMotorEx)hardwareMap.dcMotor.get("flip");
-
+        flip.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        flip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         flip.setDirection(DcMotor.Direction.REVERSE);
 
@@ -83,7 +85,7 @@ public class DepotAuto extends LinearOpMode{
         spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         spool.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spool.setDirection(DcMotor.Direction.REVERSE);
+        spool.setDirection(DcMotor.Direction.FORWARD);
 
         phoneMount = hardwareMap.servo.get("phoneMount");
         phoneMount.setDirection(Servo.Direction.FORWARD);
@@ -103,9 +105,24 @@ public class DepotAuto extends LinearOpMode{
         camera = new MineralSensor(this);
 
         waitForStart();
-        phoneMount.setPosition(.55);
+
         try {
-           disconnect();
+            disconnect();
+            runtime.reset();
+
+            double tim = runtime.time();
+            while(tim +  0.5> runtime.time() && opModeIsActive()) {
+                flip.setPower(0.1);
+                telemetry.addData("spool power: ",spool.getPower());
+                telemetry.addData("spool position: ",spool.getCurrentPosition());
+                telemetry.update();
+                heartbeat();
+            }
+            phoneMount.setPosition(.5);
+
+
+            flip.setPower(0);
+
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
             parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
             parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -118,26 +135,44 @@ public class DepotAuto extends LinearOpMode{
             angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
 
-            flip.setPower(0);
-            move(5,0.5);
+
+            move(4,0.5);
+            strafeLeft(1);
+
             while(opModeIsActive() && camera.mineral == MineralSensor.Mineral.NONE) {
                mineralSense();
                 heartbeat();
 
             }
+            runtime.reset();
+            tim = runtime.time();
+            phoneMount.setPosition(0);
+            while(tim + 1 > runtime.time() && opModeIsActive()) {
+                flip.setPower(-1);
+                telemetry.addData("spool power: ",spool.getPower());
+                telemetry.addData("spool position: ",spool.getCurrentPosition());
+                telemetry.update();
+                heartbeat();
+            }
+            runtime.reset();
+            tim = runtime.time();
+
+            phoneMount.setPosition(0);
+
+            flip.setPower(0);
             switch (camera.mineral.getName()) {
 
                 case "Center":
 
                     phoneMount.setPosition(0);
 
-                    move(40, 1);
+                    move(45, 0.6);
                     //intakeMotor.setPower(0);
 
                     deposit();
                 //  move(-45,0.8);
 
-                    move(-25,1);
+                    move(-28,0.6);
                     turn(90,"left");
                     move(30,1);
                     turn(131,"left");
@@ -149,36 +184,42 @@ public class DepotAuto extends LinearOpMode{
                 case "Left":
                     phoneMount.setPosition(0);
                     //intakeMotor.setPower(0);
-                    turn(38,"left");
+                    turn(37,"left");
                     move(33, 1);
-                    turn(-38,"left");
-                    move(20,1);
+
+                    turn(-40,"left");
+                    move(-3,.8);
+                    strafeRight(15);
+                    move(30,0.8);
+                    strafeLeft(5);
                     deposit();
                     move(-30,1);
                     strafeRight(30);
                     turn(140,"left");
                     strafeLeft(10);
-                    move(25,1);
-                    strafeLeft(10);
+                    move(30,1);
                     crater();
 
                     break;
                 case "Right":
                     phoneMount.setPosition(0);
 
-                    move(7, 1);
+                    turn(-40,"left");
                     //intakeMotor.setPower(0);
-                    strafeLeft(17);
-                    move(28, 1);
-                    strafeRight(20);
-                    move(3,1);
+
+                    move(22, 0.8);
+
+                    move(-11,0.8);
+                    turn(88,"left");
+                    move(30,0.8);
+                    turn(-50,"left");
+                    strafeRight(30);
+                    move(32,0.8);
                     deposit();
-                    strafeRight(55);
-                    move(-35,1);
-                    turn(140,"left");
-                    strafeLeft(10);
+                    move(-31,0.8);
+                    turn(131,"left");
+                    strafeLeft(15);
                     move(25,1);
-                    strafeLeft(10);
                     crater();
 
                     break;
@@ -190,6 +231,8 @@ public class DepotAuto extends LinearOpMode{
     }
     public void disconnect()throws InterruptedException{
         int ticks = (int)(5.6*LC);
+
+
         telemetry.addData("Total Ticks: ", ticks);
         telemetry.update();
         lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -445,6 +488,26 @@ public class DepotAuto extends LinearOpMode{
         }
     }
 
+    private void score(){
+        spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        spool.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        flip.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flip.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        intakeServo.setPower(1);
+       // spool.setTargetPosition(700);
+       // spool.setPower(1);
+       // spool.setTargetPosition(300);
+       //   q spool.setPower(1);
+        flip.setTargetPosition(0);
+        flip.setPower(1);
+
+
+        runtime.reset();
+        double tim = runtime.time();
+    }
+
     private void crater()throws InterruptedException{
         spool.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         spool.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -453,8 +516,7 @@ public class DepotAuto extends LinearOpMode{
         double tim = runtime.time();
         marker.setPosition(0.8);
         move(-3,1);
-        spool.setTargetPosition(1000);
-        spool.setPower(1);
+
         trapDoor.setPosition(0.73);
         while(tim + 2 > runtime.time() && opModeIsActive()) {
             flip.setPower(0.6);
@@ -466,18 +528,13 @@ public class DepotAuto extends LinearOpMode{
             heartbeat();
         }
         flip.setPower(0);
+        intakeServo.setPower(1);
+        spool.setTargetPosition(1000);
+        spool.setPower(1);
         runtime.reset();
         tim = runtime.time();
-        while(tim + 2.5 > runtime.time() && opModeIsActive()) {
 
-            intakeServo.setPower(1);
-            telemetry.addData("spool power: ",spool.getPower());
-            telemetry.addData("spool position: ",spool.getCurrentPosition());
-            telemetry.update();
-
-            heartbeat();
-        }
-
+        spool.setPower(1);
     }
     public void move(double distance, double power) throws InterruptedException {
         int ticks = (int) (distance * DC);
